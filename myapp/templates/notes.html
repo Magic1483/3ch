@@ -1,0 +1,256 @@
+
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notes</title>
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+</head>
+<body>
+    <img src="{%static 'imgs/logo.jpg'%}" style="width:100%">
+
+<!--     <a href="#" class="music_b_link">
+    <div class="music_btn"></div>
+    </a>
+
+
+    <div id="myModal">
+    <p>Контент</p>
+    <span id="myModal__close" class="close">ₓ</span>
+    </div>
+  
+    <div id="myOverlay"></div> -->
+   <script>
+        $(document).ready(function() {
+            $(document).scrollTop($(document).height());
+        });
+    </script>
+  <script>
+
+    
+     // Your CSS as text
+    var mstyles = `
+    .img_post{
+      max-width: 250px;
+    }
+    `
+
+    var styles =`
+    .img_post{
+      width:500px;
+    }`
+
+    var styleSheet = document.createElement("style")
+    
+     if ( screen.width<500)
+     {
+      // alert('mobile ver')
+      styleSheet.innerText = mstyles
+      document.head.appendChild(styleSheet)
+     }
+    else{
+      styleSheet.innerText = styles
+      document.head.appendChild(styleSheet)
+    }
+
+    
+   
+    
+  </script>
+  <div class="pr1">
+    <div>
+      <h2>..{{user}}</h2>
+      <h2 style="color:red;">[{{cur_coll}}]</h2>
+      {% for i in collection %}
+      <a href="\notes/{{i}}">#{{i}}</a>
+      {% endfor %}
+      <a href="\profile" style="margin-top:10%;color:red">my profile</a>
+    </div>
+    <div class="main">
+        
+        {% for i in data %}
+<!--           Search mode -->
+          {% if request.GET.search in i.content %}
+            {{i.id}}
+            <h2>{{i.title}}</h2>
+      
+            {% if i.content %}
+            <p>{{i.content | safe}}</p>
+            {% endif %}
+            
+            {% if i.img %}
+            <img src="{{i.img.url}}" class="img_post">
+            {% endif %}
+      
+            {% if i.audio %}
+            <audio controls type="audio/webm">
+              <source src="{{ i.audio.url }}" >
+            </audio>
+            {% endif %}
+            <p>by {{i.author}}</p>
+
+            {% if i.author == user %}
+            <a href="{% url 'deletePost' i.id i.collection %}">del</a>
+            {% endif %}
+          {% endif %}
+<!--       Default mode -->
+          {% if not request.GET.search %}
+            {{i.id}}
+            <h2>{{i.title}}</h2>
+      
+            {% if i.content %}
+            <p>{{i.content | safe}}</p>
+            {% endif %}
+            
+            {% if i.img %}
+            <img src="{{i.img.url}}" class="img_post">
+            {% endif %}
+      
+            {% if i.audio %}
+            <audio controls type="audio/webm">
+              <source src="{{ i.audio.url }}" >
+            </audio>
+            {% endif %}
+            <p>by {{i.author}}</p>
+
+            {% if i.author == user %}
+            <a href="{% url 'deletePost' i.id i.collection %}">del</a>
+            {% endif %} 
+          {% endif %}
+      
+        {% endfor %}
+
+
+    <div class="controls">
+      <div class="Searh-box" style="padding: 3% 0 3% 0%;">
+      <input type='text' id="search_field" />
+        <button onclick='cancel_search()'>Cancel search</button><br>
+        {% if request.GET.search  %}
+          <h2>Search by:  {{request.GET.search}}</h2>
+        {% endif %}
+      </div>
+          
+      <form action="notes" method="post" style="width:300px" enctype='multipart/form-data' >
+          {% csrf_token %}
+          {{ form }}
+          <input type="hidden" name="cur_coll" value="{{cur_coll}}">
+          <input type="hidden" name="author" value="{{user}}">
+        
+          <input type="submit" value="Submit">
+      </form>
+      <button id='startRecordButton'>Record audio</button>
+<!--         <form action="notes" method="POST" enctype="multipart/form-data" style="width:300px">
+          {% csrf_token %}
+            
+            <h2>Create post</h2>
+            <p>Title</p>
+            <input type="text" name="title">
+            <p>Content</p>
+            <textarea name="content" id="" cols="30" rows="10"></textarea>
+            <input type="file" name="img" id="">
+            <input type="hidden" name="cur_coll" value="{{cur_coll}}">
+            <input type="hidden" name="author" value="{{user}}">
+
+            <input type="submit" value="submit">
+        </form> -->
+      </div>
+    </div>
+    </div>
+
+    <input type="file hidden" name="audio"/>
+
+  <script>
+    // #Searchfunc
+    var search_field = document.getElementById("search_field");
+
+    search_field.addEventListener('keypress',function(event){
+      if(event.key === 'Enter'){
+        event.preventDefault();
+        alert(search_field.value);
+        const urlParams = new URLSearchParams(window.location.search);
+
+        urlParams.set('search', search_field.value);
+        
+        window.location.search = urlParams;
+      }
+    })
+
+    function cancel_search() {
+      alert('uups')
+      window.location = window.location.pathname;
+    }
+
+    
+    const recordButton = document.querySelector('#startRecordButton');
+    const stopButton = document.querySelector('#stopRecordButton');
+    
+    var rec_key = true
+    
+    navigator.mediaDevices.getUserMedia({
+    audio: true
+  })
+    .then(function (stream) {
+    
+    recordButton.addEventListener('click', control);
+    
+    recorder = new MediaRecorder(stream);
+
+    // listen to dataavailable, which gets triggered whenever we have
+    // an audio blob available
+    recorder.addEventListener('dataavailable', onRecordingReady);
+  });
+
+  function control() {
+    if(rec_key==true){
+      startRecording()
+      console.log('start')
+      rec_key=false
+    }else{
+      stopRecording()
+      console.log('stop')
+      rec_key=true
+      
+    }
+  }
+  function startRecording() {
+    
+    recorder.start();
+  }
+  
+  function stopRecording() {
+    
+    recorder.stop();
+  }
+  
+  function onRecordingReady(e) {
+    // var audio = document.getElementById('rec');
+    // e.data contains a blob representing the recording
+    // audio.src = URL.createObjectURL(e.data);
+    // audio.play();
+
+    
+    
+    let formData = new FormData();
+
+    let data = new FormData();
+    data.append('audio', e.data);
+    data.append('author','{{user}}')
+    data.append('title','recorded audio')
+    data.append('cur_coll','{{cur_coll}}')
+    // add form input from hidden input elsewhere on the page
+    data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    fetch(`/notes/{{cur_coll}}`, {
+        method: 'POST',
+        body: data,
+    })
+    
+  }
+  </script>
+</body>
+</html>

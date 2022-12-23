@@ -1,0 +1,150 @@
+body{
+    background-color: rgb(199, 189, 176);
+    margin: 0;
+}
+.main{
+    /* display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    flex-wrap: wrap; */
+    margin-left: 5%;
+    margin-bottom: 4%;
+    font-family:monospace;
+}
+
+.main p{
+/*   background-color: #ddd2c4; */
+  width: 500px;
+  
+}
+.img_post{
+  width:500px;
+}
+
+.pr1{
+  display:flex;
+  margin-left:2%;
+}
+
+a {
+  flex-direction: column;
+  display: flex;
+  direction:none;
+}
+
+.page_login{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height:100vh;
+}
+.form_login{
+  padding: 1%;
+  background-color: #978f84;
+}
+.login_logo{
+  top: 14%;
+  z-index: -100;
+  width: 450px;
+  position: absolute;
+}
+
+.player{
+  display: flex;
+  justify-content: center;
+  margin: 12%;
+}
+.player_main{
+    display:flex;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-blend-mode:luminosity;
+}
+
+.cntplayer
+{
+  padding: 40px;
+  background-color: #b5b4b7b3;
+  border-radius: 40px;
+  width: 350px;
+  height: 87%;
+  overflow-y: scroll;
+  -ms-overflow-style: none;  
+  scrollbar-width: none;
+}
+
+.invisible-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+
+
+.track_block{
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-evenly;
+  margin-bottom:4%;
+}
+
+.music_btn{
+    position: absolute;
+    width: 100px;
+    background-color: red;
+    height: 55px;
+    top: 17.5%;
+    right: 63px;
+}
+
+#myModal {
+    width: 298px; height: 218px;
+    padding: 18px 9px;
+    border-radius: 4px;
+    background: #fafafa;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    margin: auto;
+    display: none;
+    opacity: 0;
+    z-index: 38;
+    text-align: center;
+}
+
+#myModal #myModal__close {
+    width: 21px; height: 21px;
+    position: absolute;
+    font-size: 29px;
+    top: 1px; right: 11px;
+    cursor: pointer;
+    display: block;
+}
+
+#myOverlay {
+    z-index: 37;
+    position: fixed;
+    background: rgba(0,0,0,.7);
+    width: 100%; height: 100%;
+    top: 0; left: 0;
+    cursor: pointer;
+    display: none;
+}
+
+
+
+
+/* The popup form - hidden by default */
+.form-popup {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  right: 15px;
+  border: 3px solid #f1f1f1;
+  z-index: 9;
+}
+
+.book{
+  margin: 1vh 0;
+}
+.book_main{
+  margin: 3vh 2vh;
+}

@@ -1,0 +1,311 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  
+  <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/4.2.7/mediaelementplayer.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="{% static 'css/global.css' %}">
+   <link href='https://css.gg/play-button.css' rel='stylesheet'>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  
+
+ </head>
+ <body class="player_main" style="background-image:url('https://i.pinimg.com/564x/04/05/dc/0405dcd3fe02a358aa9adfbb1bc2e38b.jpg');">
+  <!-- partial:index.partial.html -->
+   <script src="{% static 'js/jquery.popupwindow.js' %}"></script>
+  
+   
+   <body>
+     <style>
+       .invisible-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+     </style>
+     
+    <div class="contain player">
+     <div class="container" style="padding: 40px;
+    background-color: #b5b4b7b3;
+    border-radius: 40px;width: 350px;margin-right: 4%;height: 600px;">
+      <div class="music-player">
+        {% for item in page_obj %}
+        <title>
+         {{item.title}}
+        </title>
+       <div class="cover" style="height: 300px;
+    width: 300px;">
+        <img alt="" src="{{item.image.url}}" style="width:300px;    image-rendering: pixelated;"/>
+       </div>
+       <div class="title">
+        <h3>
+         {{item.artist}}
+        </h3>
+        <h1>
+         {{item.title}}
+        </h1>
+       </div>
+      
+
+        <audio controls id="audio" >
+            <source src="{{ item.audio_file.url }}" type="audio/mpeg">
+        </audio>
+        
+        <button onclick="prev_track()">PREV</button>
+        <button onclick="next_track()">NEXT</button>
+       {% endfor %}
+      </div>
+     </div>
+
+      <div class="cntplayer invisible-scrollbar" style="padding: 40px;
+        background-color: #b5b4b7b3;
+        border-radius: 40px;
+        width: 350px;
+        height: 600px;
+        overflow-y: scroll;
+        -ms-overflow-style: none;  
+        scrollbar-width: none;" >
+      {% for i in all_songs %}
+        
+      <div class="track_block">
+        <p>{{ forloop.counter }}</p>
+        <button onclick="select_track({{ forloop.counter }})">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M15 12.3301L9 16.6603L9 8L15 12.3301Z" fill="currentColor" />
+          </svg>
+        </button>
+        <img src={{i.image.url}} style="width:50px;"/>
+        <h3>{{i.title}}</h3>
+      </div>
+        
+      {% endfor %}
+        <button class="open-button" onclick="openForm()">Open Form</button>
+
+        <div class="form-popup" id="myForm">
+          <form action="player" method="POST" enctype="multipart/form-data" style="width:300px">
+          {% csrf_token %}
+            
+            <h2>Upload track</h2>
+<!--             <p>Title</p>
+            <input type="text" name="title"> -->
+<!--             <p>track</p> -->
+            <input type="file" name="track" id="track" multiple>
+
+            <input type="submit" value="submit">
+            
+        </form>
+          <button onclick="closeForm()">close</button>
+        </div>
+        
+      </div>
+    </div>
+
+     <div>
+    
+<!--     <button id="startRecordButton" >Start recording</button>
+    <button id="stopRecordButton" >Stop recording</button> -->
+<!--        <button class="sound_clips">Record</button> -->
+<!--        <audio id="rec" controls></audio> -->
+       
+     </div>
+   </body>
+  </html>
+
+
+  <script>
+    
+    // const startMicrophoneButton = document.querySelector('#startMicrophoneButton');
+    // const stopMicrophoneButton = document.querySelector('#stopMicrophoneButton');
+    const recordButton = document.querySelector('#startRecordButton');
+    const stopButton = document.querySelector('#stopRecordButton');
+    
+    var rec_key = true
+    
+    navigator.mediaDevices.getUserMedia({
+    audio: true
+  })
+    .then(function (stream) {
+    
+    recordButton.addEventListener('click', control);
+    
+    recorder = new MediaRecorder(stream);
+
+    // listen to dataavailable, which gets triggered whenever we have
+    // an audio blob available
+    recorder.addEventListener('dataavailable', onRecordingReady);
+  });
+
+  function control() {
+    if(rec_key==true){
+      startRecording()
+      console.log('start')
+      rec_key=false
+    }else{
+      stopRecording()
+      console.log('stop')
+      rec_key=true
+      
+    }
+  }
+  function startRecording() {
+    
+    recorder.start();
+  }
+  
+  function stopRecording() {
+    
+    recorder.stop();
+  }
+  
+  function onRecordingReady(e) {
+    var audio = document.getElementById('rec');
+    // e.data contains a blob representing the recording
+    // audio.src = URL.createObjectURL(e.data);
+    // audio.play();
+    let track = document.getElementById("track").files[0];
+    let formData = new FormData();
+
+    let data = new FormData();
+    data.append('track', e.data);;
+    // add form input from hidden input elsewhere on the page
+    data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    fetch("/player", {
+        method: 'POST',
+        body: data,
+    })
+    location.reload()
+  }
+    
+
+      
+    
+
+     
+    
+    // startRecordButton.addEventListener("click", async () => {
+    //   // For the sake of more legible code, this sample only uses the
+    //   // `showSaveFilePicker()` method. In production, you need to
+    //   // cater for browsers that don't support this method, as
+    //   // outlined in https://web.dev/patterns/files/save-a-file/.
+
+    //   stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    //   recorder = new MediaRecorder(stream);
+    
+    //   // stopMicrophoneButton.disabled = false;
+    //   // startRecordButton.disabled = false;
+    //   // log("Your microphone audio is being used.");
+    
+    //   // Prompt the user to choose where to save the recording file.
+    //   const suggestedName = "microphone-recording.webm";
+    //   const handle = await window.showSaveFilePicker({ suggestedName });
+    //   const writable = await handle.createWritable();
+    
+    //   // Start recording.
+    //   recorder.start();
+    //   recorder.addEventListener("dataavailable", async (event) => {
+    //     // Write chunks to the file.
+    //     await writable.write(event.data);
+    //     if (recorder.state === "inactive") {
+    //       // Close the file when the recording stops.
+    //       await writable.close();
+    //     }
+    //   });
+    
+    //   // stopRecordButton.disabled = false;
+    //   // log("Your microphone audio is being recorded locally.");
+    // });
+    
+    // stopRecordButton.addEventListener("click", () => {
+    //   // Stop the recording.
+    //   recorder.stop();
+    
+    //   // stopRecordButton.disabled = true;
+    //   // log("Your microphone audio has been successfully recorded locally.");
+
+    //   stream.getTracks().forEach(track => track.stop());
+    
+    //   // startRecordButton.disabled = true;
+    //   // stopRecordButton.disabled = true;
+    //   log("Your microphone audio is not used anymore.");
+    // });
+
+    
+  </script>
+
+  
+  <!-- partial -->
+   <script>
+     function next_track(params) {
+      const urlParams = new URLSearchParams(window.location.search);
+      let num = urlParams.get('page')
+      if (num<{{count_tracks}})
+      {
+        urlParams.set('page', Number(num)+1);
+        window.location.search = urlParams;
+      }
+      
+     }
+
+     function prev_track(params) {
+      const urlParams = new URLSearchParams(window.location.search);
+      let num = urlParams.get('page')
+      if (num>1){
+        urlParams.set('page', Number(num)-1);
+        window.location.search = urlParams;
+      }
+     }
+
+     function select_track(num) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (num=>1 & num<={{count_tracks}}){
+        urlParams.set('page', num);
+        urlParams.set('autoplay','true')
+        window.location.search = urlParams;
+        
+      }
+     }
+
+    player = document.getElementById("audio");
+     
+    player.onended = function (params) {
+      next_track()
+    }
+     
+    const urlParams = new URLSearchParams(window.location.search);
+    autoplay=urlParams.get('autoplay')
+    if (autoplay == 'true'){
+      let x = document.getElementById("audio");
+      x.play()
+    }
+     
+     
+
+     
+     
+     
+   </script>
+
+   <script>
+  function openForm() {
+    document.getElementById("myForm").style.display = "block";
+  }
+  
+  function closeForm() {
+    document.getElementById("myForm").style.display = "none";
+  }
+  </script>
+<!--   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+  </script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/4.2.7/mediaelement-and-player.min.js">
+  </script>
+  <script src="{% static 'js/player.js' %}">
+  </script>
+ </body>
+</html>
