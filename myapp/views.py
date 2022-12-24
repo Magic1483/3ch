@@ -7,7 +7,8 @@ from django.views.decorators.csrf import csrf_protect
 from django.core.paginator import Paginator
 from os import listdir
 from os.path import isfile, join
-
+import requests
+from .bt import send_msg,send_img,send_audio
 
 from .forms import PostForm
 # Create your views here.
@@ -119,6 +120,8 @@ def register(request):
   return render(template_name='register.html',request=request)
     
 
+
+
 def notes(request,collection):
   if 'nick' in request.session:
     if request.method == 'POST':
@@ -142,13 +145,24 @@ def notes(request,collection):
 
         ads = request.FILES.getlist('audio')
         
-          
-
-        print(title,content_str,img,col,author)
+        # telegramBotKey = '5441210926:AAEIEO-xBalcs5XlUZD1gOVKav3HbdqjlTo'
+        # chat_id='1033377971'
+        hosturl = 'https://3ch.shrshishoshchov.repl.co'
+        
+        
+        
 
         if img:
           post = Post(title=title,content=content_str,img=img,collection=col,author=author)
           post.save()
+          imgurl=hosturl+post.img.url
+          
+          send_img(imgurl)
+
+          # print(post.img.url)
+          # tgurl = f'https://api.telegram.org/bot{telegramBotKey}/sendPhoto?chat_id={chat_id}&photo={imgurl}'
+          # r = requests.post(tgurl)
+          # print(r.text)
         elif ads:
           audio =ads[0]
           post = Post(title=title,audio=audio,collection=col,author=author)
@@ -156,6 +170,7 @@ def notes(request,collection):
         else:
           post = Post(title=title,content=content_str,collection=col,author=author)
           post.save()
+          send_msg(f'{title} {content_str}')
           print('image is not exist')
           
         # title = request.POST['title']
@@ -225,6 +240,7 @@ def player(request):
     # title = request.POST['title']
     arr = request.FILES.getlist('track')
     print(arr)
+    names = []
     if len(arr)<6:
       for i in arr:
         t = i.name
@@ -235,10 +251,21 @@ def player(request):
         print(t)
         track = Song(title=title,audio_file=i)
         track.save()
+        names.append(track.audio_file.name)
+        
+        # send_audio(track.audio_file.url)
         print('Track added',title)
+        
+        
     else:
       print('so much files')
-  
+      
+    hosturl = 'https://3ch.shrshishoshchov.repl.co/media/'
+    if len(names)>0:
+      for j in names:
+          audio_url=hosturl+j
+          print(audio_url)
+          send_audio(audio_url)
     
         
     return HttpResponseRedirect(f'/player')

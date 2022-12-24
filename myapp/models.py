@@ -1,5 +1,7 @@
 from django.db import models
+from django.dispatch import receiver
 from django.templatetags.static import static
+import os
 
 # Create your models here.
 class Post(models.Model):
@@ -25,6 +27,16 @@ class Song(models.Model):
     def __str__(self):
         return self.title
 
+@receiver(models.signals.post_delete, sender=Song)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.audio_file:
+        if os.path.isfile(instance.audio_file.path):
+            os.remove(instance.audio_file.path)
+          
 class Video(models.Model):
   title = models.TextField()
   video = models.FileField(blank=True,null=True)

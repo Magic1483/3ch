@@ -17,7 +17,7 @@ SECRET_KEY = 'django-insecure-x55*c8_c1-_g+dm+dzslqm2ol1ivl@dn+8=rllpi)_mcdkr4jf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['b4753080-6e07-48ec-a740-dc1b3b598b50.id.repl.co','3ch.shrshishoshchov.repl.co']
+ALLOWED_HOSTS = ['5b3f4b8e-ddd3-475d-ae9b-6c4ce2e51a6e.id.repl.co','3ch.shrshishoshchov.repl.co','10.10.2.91']
 
 CSRF_TRUSTED_ORIGINS = ['https://3ch.shrshishoshchov.repl.co/*']
 
@@ -25,6 +25,8 @@ CSRF_TRUSTED_ORIGINS = ['https://3ch.shrshishoshchov.repl.co/*']
 
 INSTALLED_APPS = [
     'channels',
+    'django_telethon',
+    'django_telethon_session',
     'myapp.apps.MyappConfig',
     'django.contrib.admin',
     'django.contrib.auth',
